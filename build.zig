@@ -360,6 +360,7 @@ fn buildExamples(
     }{
         // Mach core examples
         .{ .core = true, .name = "custom-entrypoint", .deps = &.{} },
+        .{ .core = true, .name = "rotating-cube", .deps = &.{} },
         .{ .core = true, .name = "triangle", .deps = &.{} },
 
         // Mach engine examples
