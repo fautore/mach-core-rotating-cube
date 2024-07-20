@@ -140,6 +140,7 @@ pub const sqrt = std.math.sqrt;
 pub const pow = std.math.pow;
 pub const sin = std.math.sin;
 pub const cos = std.math.cos;
+pub const tan = std.math.tan;
 pub const acos = std.math.acos;
 pub const isNan = std.math.isNan;
 pub const isInf = std.math.isInf;
