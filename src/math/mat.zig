@@ -404,10 +404,10 @@ pub fn Mat(
                     const c2 = q;
                     const d2 = -q * v.near;
                     return Matrix.init(
-                        &RowVec(a0, 0, 0, 0),
-                        &RowVec(0, b1, 0, 0),
-                        &RowVec(0, 0, c2, 0),
-                        &RowVec(0, 0, d2, 0),
+                        &RowVec.init(a0, 0, 0, 0),
+                        &RowVec.init(0, b1, 0, 0),
+                        &RowVec.init(0, 0, c2, 0),
+                        &RowVec.init(0, 0, d2, 0),
                     );
                 }
             },
