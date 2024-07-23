@@ -1043,3 +1043,39 @@ test "projection2D_model_to_clip_space" {
     try testing.expect(math.Vec4, math.vec4(1, 0, 1, 1)).eql(mvp.mul(&math.Mat4x4.rotateY(math.degreesToRadians(90))).mulVec(&math.vec4(0, 0, 50, 1)));
     try testing.expect(math.Vec4, math.vec4(0, 0, 0.5, 1)).eql(mvp.mul(&math.Mat4x4.rotateZ(math.degreesToRadians(90))).mulVec(&math.vec4(0, 0, 50, 1)));
 }
+
+test "projection3D" {
+    const proj = math.Mat4x4.projection3D(.{
+        .fov = 45,
+        .aspect = 1,
+        .near = 0.1,
+        .far = 100,
+    });
+    // TODO: change this with approximate value assertion maybe?
+    try testing.expect(math.Mat4x4, math.mat4x4(
+        &math.vec4(1.792591, 0, 0, 0),
+        &math.vec4(0, 1.792591, 0, 0),
+        &math.vec4(0, 0, 1.001001, 0),
+        &math.vec4(0, 0, -1.001001e-1, 0),
+    )).eql(proj);
+}
+test "projection3D_coordinates_transformations" {
+    const model = math.Mat4x4.ident;
+    const view = math.Mat4x4.ident;
+    const proj = math.Mat4x4.projection3D(.{
+        .fov = 45,
+        .aspect = 1,
+        .near = 0,
+        .far = 100,
+    });
+    const mvp = model.mul(&view).mul(&proj);
+
+    // TODO: change testing.expect() with approximate value assertion maybe?
+    // origin
+    try testing.expect(math.Vec4, math.vec4(0, 0, 1.0, 1)).eql(mvp.mulVec(&math.vec4(0, 0, 0, 1)));
+    try testing.expect(math.Vec4, math.vec4(0, 0, 0.5, 1)).eql(mvp.mulVec(&math.vec4(0, 0, 50, 1)));
+    // point on the z-axis (near plane)
+    try testing.expect(math.Vec4, math.vec4(0.5, 0.5, 2, 1)).eql(proj.mulVec(&math.vec4(1, 1, 10, 1)));
+    // point on the z-axis (far plane)
+    try testing.expect(math.Vec4, math.vec4(0, 0, 20, 1)).eql(proj.mulVec(&math.vec4(0, 0, 50, 1)));
+}
