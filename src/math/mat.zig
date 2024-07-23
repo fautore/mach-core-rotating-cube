@@ -389,6 +389,7 @@ pub fn Mat(
                 /// for extra details on reverse-z see:
                 ///  - https://en.wikipedia.org/wiki/Z-buffering#W-buffer
                 ///  - https://developer.nvidia.com/blog/visualizing-depth-precision
+                /// This implementation is not perfect, input values are not validated (e.g.negative fov, aspect == 0, negative aspect ect...)
                 pub inline fn projection3D(v: struct {
                     fov: f32,
                     aspect: f32,
