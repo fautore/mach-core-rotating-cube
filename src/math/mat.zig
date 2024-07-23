@@ -385,6 +385,31 @@ pub fn Mat(
                     )));
                     return p;
                 }
+                /// Calculates the 3D projection matrix using the magic of reverse-z buffer
+                /// for extra details on reverse-z see:
+                ///  - https://en.wikipedia.org/wiki/Z-buffering#W-buffer
+                ///  - https://developer.nvidia.com/blog/visualizing-depth-precision
+                pub inline fn projection3D(v: struct {
+                    fov: f32,
+                    aspect: f32,
+                    near: f32,
+                    far: f32,
+                }) Matrix {
+                    const tanHalfFov = math.tan(v.fov / 2.0);
+                    const q = v.far / (v.far - v.near);
+
+                    const a0 = 1 / (v.aspect * tanHalfFov);
+                    const b1 = 1 / tanHalfFov;
+                    // setting values for the reverse-z buffer technique
+                    const c2 = q;
+                    const d2 = -q * v.near;
+                    return Matrix.init(
+                        &RowVec(a0, 0, 0, 0),
+                        &RowVec(0, b1, 0, 0),
+                        &RowVec(0, 0, c2, 0),
+                        &RowVec(0, 0, d2, 0),
+                    );
+                }
             },
             else => @compileError("Expected Mat3x3, Mat4x4 found '" ++ @typeName(Matrix) ++ "'"),
         };
