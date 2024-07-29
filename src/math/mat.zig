@@ -385,6 +385,32 @@ pub fn Mat(
                     )));
                     return p;
                 }
+                /// Calculates the 3D projection matrix using the magic of reverse-z buffer
+                /// for extra details on reverse-z see:
+                ///  - https://en.wikipedia.org/wiki/Z-buffering#W-buffer
+                ///  - https://developer.nvidia.com/blog/visualizing-depth-precision
+                /// This implementation is not perfect, input values are not validated (e.g.negative fov, aspect == 0, negative aspect ect...)
+                pub inline fn projection3D(v: struct {
+                    fov: f32,
+                    aspect: f32,
+                    near: f32,
+                    far: f32,
+                }) Matrix {
+                    const tanHalfFov = math.tan(v.fov / 2.0);
+                    const q = v.far / (v.far - v.near);
+
+                    const a0 = 1 / (v.aspect * tanHalfFov);
+                    const b1 = 1 / tanHalfFov;
+                    // setting values for the reverse-z buffer technique
+                    const c2 = q;
+                    const c3 = -q * v.near;
+                    return Matrix.init(
+                        &RowVec.init(a0, 0, 0, 0),
+                        &RowVec.init(0, b1, 0, 0),
+                        &RowVec.init(0, 0, c2, 0),
+                        &RowVec.init(0, 0, c3, 1),
+                    );
+                }
             },
             else => @compileError("Expected Mat3x3, Mat4x4 found '" ++ @typeName(Matrix) ++ "'"),
         };
@@ -1016,4 +1042,31 @@ test "projection2D_model_to_clip_space" {
     try testing.expect(math.Vec4, math.vec4(0, -1, 1, 1)).eql(mvp.mul(&math.Mat4x4.rotateX(math.degreesToRadians(90))).mulVec(&math.vec4(0, 0, 50, 1)));
     try testing.expect(math.Vec4, math.vec4(1, 0, 1, 1)).eql(mvp.mul(&math.Mat4x4.rotateY(math.degreesToRadians(90))).mulVec(&math.vec4(0, 0, 50, 1)));
     try testing.expect(math.Vec4, math.vec4(0, 0, 0.5, 1)).eql(mvp.mul(&math.Mat4x4.rotateZ(math.degreesToRadians(90))).mulVec(&math.vec4(0, 0, 50, 1)));
+}
+
+test "projection3D" {
+    const proj = math.Mat4x4.projection3D(.{
+        .fov = 45,
+        .aspect = 1,
+        .near = 0.1,
+        .far = 100,
+    });
+    // TODO: change this with approximate value assertion maybe?
+    try testing.expect(math.Mat4x4, math.mat4x4(
+        &math.vec4(1.792591, 0, 0, 0),
+        &math.vec4(0, 1.792591, 0, 0),
+        &math.vec4(0, 0, 1.001001, 0),
+        &math.vec4(0, 0, -1.001001e-1, 1),
+    )).eql(proj);
+}
+test "projection3D_coordinates_transformations" {
+    const proj = math.Mat4x4.projection3D(.{
+        .fov = 45,
+        .aspect = 1,
+        .near = 0,
+        .far = 100,
+    });
+    // TODO: change testing.expect() with approximate value assertion maybe?
+    // origin
+    try testing.expect(math.Vec4, math.vec4(0, 0, 0, 1)).eql(proj.mulVec(&math.vec4(0, 0, 0, 1)));
 }
