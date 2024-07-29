@@ -407,8 +407,8 @@ pub fn Mat(
                     return Matrix.init(
                         &RowVec.init(a0, 0, 0, 0),
                         &RowVec.init(0, b1, 0, 0),
-                        &RowVec.init(0, 0, c2, c3),
-                        &RowVec.init(0, 0, 0, 0),
+                        &RowVec.init(0, 0, c2, 0),
+                        &RowVec.init(0, 0, c3, 1),
                     );
                 }
             },
@@ -1055,8 +1055,8 @@ test "projection3D" {
     try testing.expect(math.Mat4x4, math.mat4x4(
         &math.vec4(1.792591, 0, 0, 0),
         &math.vec4(0, 1.792591, 0, 0),
-        &math.vec4(0, 0, 1.001001, -1.001001e-1),
-        &math.vec4(0, 0, 0, 0),
+        &math.vec4(0, 0, 1.001001, 0),
+        &math.vec4(0, 0, -1.001001e-1, 1),
     )).eql(proj);
 }
 test "projection3D_coordinates_transformations" {
@@ -1069,9 +1069,4 @@ test "projection3D_coordinates_transformations" {
     // TODO: change testing.expect() with approximate value assertion maybe?
     // origin
     try testing.expect(math.Vec4, math.vec4(0, 0, 0, 1)).eql(proj.mulVec(&math.vec4(0, 0, 0, 1)));
-    //try testing.expect(math.Vec4, math.vec4(0, 0, 0.5, 1)).eql(mvp.mulVec(&math.vec4(0, 0, 50, 1)));
-    // point on the z-axis (near plane)
-    //try testing.expect(math.Vec4, math.vec4(0.5, 0.5, 2, 1)).eql(proj.mulVec(&math.vec4(1, 1, 10, 1)));
-    // point on the z-axis (far plane)
-    //try testing.expect(math.Vec4, math.vec4(0, 0, 20, 1)).eql(proj.mulVec(&math.vec4(0, 0, 50, 1)));
 }
