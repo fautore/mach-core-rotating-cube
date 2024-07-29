@@ -360,7 +360,6 @@ fn buildExamples(
     }{
         // Mach core examples
         .{ .core = true, .name = "custom-entrypoint", .deps = &.{} },
-        .{ .core = true, .name = "rotating-cube", .deps = &.{} },
         .{ .core = true, .name = "triangle", .deps = &.{} },
 
         // Mach engine examples
@@ -369,6 +368,7 @@ fn buildExamples(
         .{ .name = "glyphs", .deps = &.{ .freetype, .assets } },
         .{ .name = "piano", .deps = &.{} },
         .{ .name = "play-opus", .deps = &.{.assets} },
+        .{ .name = "rotating-cube", .deps = &.{} },
         .{ .name = "sprite", .deps = &.{ .zigimg, .assets } },
         .{ .name = "text", .deps = &.{.assets} },
     }) |example| {

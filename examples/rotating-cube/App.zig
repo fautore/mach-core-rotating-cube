@@ -195,25 +195,25 @@ fn tick(core: *mach.Core.Mod, game: *Mod) !void {
         var transform = math.Mat4x4.ident;
         transform = transform.mul(&math.Mat4x4.rotateX(time * (std.math.pi / 2.0)));
         transform = transform.mul(&math.Mat4x4.rotateZ(time * (std.math.pi / 2.0)));
-        math.lookAtRh(
-            math.Vec{ 0, 4, 2, 1 },
-            math.Vec{ 0, 0, 0, 1 },
-            math.Vec{ 0, 0, 1, 0 },
-        );
-        //const descriptor_width = core.get(core.state().main_window, .framebuffer_width).?;
-        //const descriptor_height = core.get(core.state().main_window, .framebuffer_height).?;
-        //const proj = math.perspectiveFovRh(
-        //    (std.math.pi / 4.0),
-        //    @as(f32, @floatFromInt(descriptor_width)) / @as(f32, @floatFromInt(descriptor_height)),
-        //    0.1,
-        //    10,
+        const view = math.Mat4x4.ident;
+        //    zm.Vec{ 0, 4, 2, 1 },
+        //    zm.Vec{ 0, 0, 0, 1 },
+        //    zm.Vec{ 0, 0, 1, 0 },
         //);
+        const descriptor_width = core.get(core.state().main_window, .framebuffer_width).?;
+        const descriptor_height = core.get(core.state().main_window, .framebuffer_height).?;
+        const proj = math.Mat4x4.projection3D(.{
+            .fov = (std.math.pi / 4.0),
+            .aspect = @as(f32, @floatFromInt(descriptor_width)) / @as(f32, @floatFromInt(descriptor_height)),
+            .near = 0.1,
+            .far = 10,
+        });
 
-        //const mvp = math.mul(math.mul(model, view), proj);
-        //const ubo = UniformBufferObject{
-        //    .mat = math.transpose(mvp),
-        //};
-        //core.state().queue.writeBuffer(game.state().uniform_buffer, 0, &[_]UniformBufferObject{ubo});
+        const mvp = math.mul(math.mul(transform, view), proj);
+        const ubo = UniformBufferObject{
+            .mat = math.transpose(mvp),
+        };
+        core.state().queue.writeBuffer(game.state().uniform_buffer, 0, &[_]UniformBufferObject{ubo});
     }
 
     const render_pass = encoder.beginRenderPass(&gpu.RenderPassDescriptor.init(.{

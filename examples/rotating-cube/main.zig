@@ -1,4 +1,6 @@
+const std = @import("std");
 const mach = @import("mach");
+const core = mach.core;
 
 pub const modules = .{
     mach.Core,
@@ -6,6 +8,11 @@ pub const modules = .{
 };
 
 pub fn main() !void {
-    try mach.core.initModule();
-    while (try mach.core.tick()) {}
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpa.deinit();
+    const allocator = gpa.allocator();
+
+    var app = try mach.App.init(allocator, .app);
+    defer app.deinit(allocator);
+    try app.run(.{ .allocator = allocator });
 }
