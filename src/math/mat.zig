@@ -411,6 +411,21 @@ pub fn Mat(
                         &RowVec.init(0, 0, c3, 1),
                     );
                 }
+                pub inline fn lookAt(
+                    eye: math.Vec3,
+                    target: math.Vec3,
+                    up: math.Vec3,
+                ) math.Mat4x4 {
+                    const z = math.Vec3.normalize(&math.Vec3.sub(&eye, &target), 1);
+                    const x = math.Vec3.normalize(&math.Vec3.cross(&up, &z), 1);
+                    const y = math.Vec3.cross(&z, &x);
+                    return Matrix.init(
+                        &RowVec.init(x.x(), y.x(), z.x(), -math.Vec3.dot(&x, &eye)),
+                        &RowVec.init(x.y(), y.y(), z.y(), -math.Vec3.dot(&y, &eye)),
+                        &RowVec.init(x.z(), y.z(), z.z(), -math.Vec3.dot(&z, &eye)),
+                        &RowVec.init(0, 0, 0, 1),
+                    );
+                }
             },
             else => @compileError("Expected Mat3x3, Mat4x4 found '" ++ @typeName(Matrix) ++ "'"),
         };
@@ -1069,4 +1084,17 @@ test "projection3D_coordinates_transformations" {
     // TODO: change testing.expect() with approximate value assertion maybe?
     // origin
     try testing.expect(math.Vec4, math.vec4(0, 0, 0, 1)).eql(proj.mulVec(&math.vec4(0, 0, 0, 1)));
+}
+test "lookAt" {
+    const proj = math.Mat4x4.lookAt(
+        math.vec3(1, 0, 1), // eye
+        math.vec3(0, 0, 0), // target
+        math.vec3(0, 1, 0), // up
+    );
+    try testing.expect(math.Mat4x4, math.Mat4x4.init(
+        &math.vec4(2.6120389e-1, 0, 4.1421354e-1, 0),
+        &math.vec4(0, 2.1638837e-1, 0, 0),
+        &math.vec4(-2.6120389e-1, 0, 4.1421354e-1, -8.284271e-1),
+        &math.vec4(0, 0, 0, 1),
+    )).eql(proj);
 }
