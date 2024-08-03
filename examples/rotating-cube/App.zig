@@ -195,11 +195,11 @@ fn tick(core: *mach.Core.Mod, game: *Mod) !void {
         var transform = math.Mat4x4.ident;
         transform = transform.mul(&math.Mat4x4.rotateX(time * (std.math.pi / 2.0)));
         transform = transform.mul(&math.Mat4x4.rotateZ(time * (std.math.pi / 2.0)));
-        const view = math.Mat4x4.ident;
-        //    zm.Vec{ 0, 4, 2, 1 },
-        //    zm.Vec{ 0, 0, 0, 1 },
-        //    zm.Vec{ 0, 0, 1, 0 },
-        //);
+        const view = math.Mat4x4.lookAt(
+            math.vec3{ 0, 4, 2 },
+            math.vec3{ 0, 0, 0 },
+            math.vec3{ 0, 1, 0 },
+        );
         const descriptor_width = core.get(core.state().main_window, .framebuffer_width).?;
         const descriptor_height = core.get(core.state().main_window, .framebuffer_height).?;
         const proj = math.Mat4x4.projection3D(.{
